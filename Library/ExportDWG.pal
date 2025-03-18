@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Element>
+    <Script>
+        <Title>Dávkový export DWG</Title>
+    </Script>
+    <Page>
+        <Name>Page1</Name>
+        <Text>Example</Text>
+
+
+		<Parameter>
+			<Name>ConfigFile</Name>
+			<Text>Konfigurační soubor (*.nth)</Text>
+			<Value></Value>
+			<ValueType>String</ValueType>
+			<ValueDialog>OpenFileDialog</ValueDialog>
+			<FileFilter>Konfigurační soubor(*.nth)|*.nth</FileFilter>
+			<FileExtension>nth</FileExtension>
+			<DefaultDirectories>etc|STD</DefaultDirectories>
+		</Parameter>
+
+		<Parameter>
+			<Name>DwgDrawingFilePath</Name>
+			<Text>Cesta pro export</Text>
+			<Value>C:\Output\</Value>
+			<ValueType>String</ValueType>
+		</Parameter>
+
+		<Parameter>
+		<Name>directory_input</Name>
+		<Text>Adresář s oblíbenými položkami fólií v "BIM" složce</Text>
+		<Value>Rematrice\</Value>
+		<ValueType>String</ValueType>
+		</Parameter>
+
+		<Parameter>
+			<Name>DrawingFileButton1</Name>
+			<Text>Export DWG</Text>
+			<ValueType>Row</ValueType>
+
+			<Parameter>
+				<Name>DrawingButton1</Name>
+				<Text>Spustit</Text>
+				<EventId>1001</EventId>
+				<ValueType>Button</ValueType>
+			</Parameter>
+		</Parameter>
+
+		<Parameter>
+			<Name>NameRow</Name>
+			<Text>Name</Text>
+			<ValueType>Row</ValueType>
+			<Value>OVERALL:1</Value>
+
+			<Parameter>
+				<Name>InfoPicture</Name>
+				<Text>Provide some more extensive explanation here.
+		Multi-lines are possible.</Text>
+				<TextId>1005</TextId>
+				<Value>AllplanSettings.PictResPalette.eHotinfo</Value>
+				<ValueType>Picture</ValueType>
+			</Parameter>
+
+			<Parameter>
+				<Name>Name</Name>
+				<Text></Text>
+				<Value></Value>
+				<ValueType>String</ValueType>
+			</Parameter>
+</Parameter>
+    </Page>
+</Element>
+
+
