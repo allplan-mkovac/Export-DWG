@@ -11,8 +11,8 @@
     
     <Page>
         <Name>Export DWG</Name>
-        <Text>Export DWG</Text>
-
+        <Text>Batch DWG export</Text>
+		<TextId>1001</TextId>
 
 		<Parameter>
 			<Name>ConfigFile</Name>

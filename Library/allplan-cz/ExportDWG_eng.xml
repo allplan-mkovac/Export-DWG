@@ -3,7 +3,7 @@
     <StringTable>Allplan PythonParts string table</StringTable>
     <Item>
         <TextId>1001</TextId>
-        <Text>Batch DWQ export</Text>
+        <Text>Batch DWG export</Text>
     </Item>
     <Item>
         <TextId>1002</TextId>
