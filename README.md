@@ -8,20 +8,14 @@ Automatically loads, activates, and exports the required drawings based on the s
 
 Saves the resulting DWG files into a specific output directory (by default c:/output), organized to subfolders by project name and timestamp.
 
-Main Features
+Main Features:
 Compatible with Allplan 2026.
-
 Integrates with the Allplan property palette and actionbar.
-
 Allows saving and loading of favorite parameter sets (favorites).
-
-Requirements
-Allplan 2026.
-
 Input XML files with the correct structure describing drawing layers.
 
 Usage:
-Run the script from library or via actionbar.
+Run the script from library (library/office/allplan-cz/batchexport) or via actionbar (plugin can be found under plugin section in configuration of actionbar).
 
 In the user interface user can select the *.NTH for export configuration.
 In the user interface, select the folder with input XML files.
@@ -31,4 +25,4 @@ After pressing the action button, all XML files will be processed and the corres
 Successful export is confirmed with a message.
 
 Contact
-For questions or bug reports, please contact Allplan česko hotline.
+For questions or bug reports, please contact Allplan Česko hotline at support.cz@allplan.com
