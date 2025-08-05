@@ -1,0 +1,30 @@
+plugin:
+  name: Batch DWG export from favourites
+  UUID: 704cbe81-47f0-48d0-bfab-67b646d7edd4
+  version: 1.0.0
+  developer: allplan-cz
+  default-language: CZ
+  min-allplan-version: 2024
+
+installation:
+  target-location: STD
+
+tools:
+  - id: DWG Export
+    pyp: Library\allplan-cz\ExportDWG.pyp
+    display-name:
+      en: DWG export in Batch run
+      de: DWG export
+      cz: Dávkový export DWG
+    icons:
+      small: PythonPartsActionbar\allplan-cz\DWG_24.png
+      large: PythonPartsActionbar\allplan-cz\DWG_128.png
+  
+task-area:
+  display-name:
+    en: Export DWG batch
+    de: Export DWG batch
+    cz: Dávkový export DWG
+  layout:
+    - DWG Export
+
