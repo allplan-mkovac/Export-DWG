@@ -1,0 +1,32 @@
+name: Batch DWG export
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create allep file
+        uses: vimtor/action-zip@v1.1
+        with:
+          files: Design/ Library/ Prod/ PythonPartsScripts/ PythonPartsActionbar/ VisualScripts/ install-config.yml requirements.in
+          recursive: false
+          dest: ExportDWG.allep
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          gh release create "$tag" `
+            --title="$tag" `
+            --draft `
+            ExportDWG.allep
