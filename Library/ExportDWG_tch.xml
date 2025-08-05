@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Element>
+    <StringTable>Allplan PythonParts string table</StringTable>
+    <Item>
+        <TextId>1001</TextId>
+        <Text>Dávkový export DWG</Text>
+    </Item>
+    <Item>
+        <TextId>1002</TextId>
+        <Text>Konfigurační soubor (*.nth)</Text>
+    </Item>
+    <Item>
+        <TextId>1003</TextId>
+        <Text>Cesta pro export</Text>
+    </Item>
+    <Item>
+        <TextId>1004</TextId>
+        <Text>Adresář s oblíbenými položkami fólií v "BIM" složce</Text>
+    </Item>
+    <Item>
+        <TextId>1005</TextId>
+        <Text>Export DWG</Text>
+    </Item>
+    <Item>
+        <TextId>1006</TextId>
+        <Text>Spustit</Text>
+    </Item>
+
+    <Item>
+        <TextId>1007</TextId>
+        <Text>Dávkový export DWG</Text>
+    </Item>
+
+</Element>

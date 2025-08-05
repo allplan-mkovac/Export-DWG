@@ -1,6 +1,7 @@
 """
-Script for ExportImportInteractor
+Script for BatchExportDWG
 """
+from typing import TYPE_CHECKING, Any, cast
 
 import NemAll_Python_Geometry as AllplanGeo
 import NemAll_Python_BaseElements as AllplanBaseElements
@@ -10,12 +11,18 @@ import NemAll_Python_Utility as AllplanUtils
 
 import os
 import xml.etree.ElementTree as ET
-
+from BuildingElement import BuildingElement
 from BuildingElementPaletteService import BuildingElementPaletteService
 from BuildingElementService import BuildingElementService
+from BuildingElementListService import BuildingElementListService
 from NemAll_Python_AllplanSettings import AllplanPaths
 from datetime import datetime
 from NemAll_Python_BaseElements import ProjectAttributeService
+from BaseInteractor import BaseInteractor, BaseInteractorData
+if TYPE_CHECKING:
+    from __BuildingElementStubFiles.EventsBuildingElement import EventsBuildingElement
+else:
+    EventsBuildingElement = BuildingElement
 
 print('Load ExportDWG.py')
 
@@ -63,7 +70,7 @@ def create_element(build_ele, doc):
     return (model_ele_list, None, None)
 
 
-def create_interactor(coord_input, pyp_path, str_table_service):
+def create_interactor(interactor_data: BaseInteractorData) -> "ExportDWG":
     """
     Create the interactor
 
@@ -73,15 +80,15 @@ def create_interactor(coord_input, pyp_path, str_table_service):
         str_table_service:  string table service
     """
 
-    return ExportImportInteractor(coord_input, pyp_path, str_table_service)
+    return ExportDWG(interactor_data)
 
 
-class ExportImportInteractor():
+class ExportDWG(BaseInteractor):
     """
     Definition of class ExportImportInteractor
     """
 
-    def __init__(self, coord_input, pyp_path, str_table_service):
+    def __init__(self, interactor_data: BaseInteractorData):
         """
         Initialization of class ExportImportInteractor
 
@@ -90,81 +97,25 @@ class ExportImportInteractor():
             pyp_path:           path of the pyp file
             str_table_service:  string table service
         """
+        self.coord_input = interactor_data.coord_input
+        self.build_ele_list = interactor_data.build_ele_list
+        
+        self.build_ele = cast(EventsBuildingElement, interactor_data.build_ele_list[0])
+        self.esc_pressed = False
 
-        self.coord_input       = coord_input
-        self.pyp_path          = pyp_path
-        self.str_table_service = str_table_service
-        self.model_ele_list    = None
-        self.build_ele_service = BuildingElementService()
+        # initialize the point input
+        input_control_data = AllplanIFW.ValueInputControlData(AllplanIFW.eValueInputControlType.eTEXT_EDIT, False)
+        user_prompt = AllplanIFW.InputStringConvert("See infos printed in trace")
+        interactor_data.coord_input.InitFirstPointValueInput(user_prompt, input_control_data)
+        
+        # initialize the palette
+        self.palette_service = BuildingElementPaletteService(interactor_data.build_ele_list,
+                                                             interactor_data.build_ele_composite,
+                                                             self.build_ele.script_name,
+                                                             interactor_data.control_props_list,
+                                                             self.build_ele.pyp_file_name)
 
-
-        #----------------- read the data and show the palette
-
-        result, self.build_ele_script, self.build_ele_list, self.control_props_list,    \
-            self.build_ele_composite, part_name, self.file_name = \
-            self.build_ele_service.read_data_from_pyp(pyp_path + "\\ExportDWG.pal", self.str_table_service.str_table, False,
-                                                      self.str_table_service.material_str_table)
-
-
-
-
-        if not result:
-            return
-
-        self.palette_service = BuildingElementPaletteService(self.build_ele_list, self.build_ele_composite,
-                                                             self.build_ele_script,
-                                                             self.control_props_list, self.file_name)
-
-        self.palette_service.show_palette(part_name)
-
-
-
-        #----------------- get the properties and start the input
-
-        self.com_prop = AllplanBaseElements.CommonProperties()
-
-        self.coord_input.InitFirstElementInput(AllplanIFW.InputStringConvert("Execute by button click"))
-
-
-    def modify_element_property(self, page, name, value):
-        """
-        Modify property of element
-
-        Args:
-            page:   the page of the property
-            name:   the name of the property.
-            value:  new value for property.
-        """
-
-        update_palette = self.palette_service.modify_element_property(page, name, value)
-
-        if update_palette:
-            self.palette_service.update_palette(-1, False)
-
-
-    def on_cancel_function(self):
-        """
-        Check for input function cancel in case of ESC
-
-        Returns:
-            True/False for success.
-        """
-
-        self.palette_service.close_palette()
-
-        return True
-
-
-    def on_preview_draw(self):
-        """
-        Handles the preview draw event
-        """
-
-
-    def on_mouse_leave(self):
-        """
-        Handles the mouse leave event
-        """
+        self.palette_service.show_palette(self.build_ele.pyp_file_name)
 
 
     def on_control_event(self, event_id):
@@ -175,7 +126,7 @@ class ExportImportInteractor():
             event_id: event id of control.
         """
 
-        build_ele = self.build_ele_list[0]
+        # build_ele = build_ele_list[0]
 
         doc = self.coord_input.GetInputViewDocument()
 
@@ -210,7 +161,7 @@ class ExportImportInteractor():
         # print(project_name)
 
         # directory_path = build_ele.directory_input.value
-        directory_path = project_path+"BIM\\"+build_ele.directory_input.value
+        directory_path = project_path+"BIM\\"+self.build_ele.directory_input.value
 
         if event_id == 1001:
             files = os.listdir(directory_path)
@@ -252,8 +203,8 @@ class ExportImportInteractor():
 
 
                                 file_name_no_extension = file_name.split('.xml')[0]
-                                exported_dwg_name=build_ele.DwgDrawingFilePath.value+project_name+"\\"+actual_date+"\\"+file_name_no_extension+".dwg"
-                                theme_file = build_ele.ConfigFile.value
+                                exported_dwg_name=self.build_ele.DwgDrawingFilePath.value+project_name+"\\"+actual_date+"\\"+file_name_no_extension+".dwg"
+                                theme_file = self.build_ele.ConfigFile.value
                                 print (theme_file)
                                 drawing_file_serv.ExportDWGByTheme(doc, exported_dwg_name, theme_file, version=2018)
 
@@ -268,25 +219,99 @@ class ExportImportInteractor():
                 x+=1
 
 
-            AllplanUtils.ShowMessageBox("Export všech DWG ze seznamu \n"+directory_path+"\ndo složky \n"+build_ele.DwgDrawingFilePath.value+project_name+"\\"+actual_date+"\nbyl úspěšný",0)
+            AllplanUtils.ShowMessageBox("Export všech DWG ze seznamu \n"+directory_path+"\ndo složky \n"+self.build_ele.DwgDrawingFilePath.value+project_name+"\\"+actual_date+"\nbyl úspěšný",0)
 
+    def process_mouse_msg(self,
+                            mouse_msg: int,
+                            pnt      : AllplanGeo.Point2D,
+                            msg_info : AllplanIFW.AddMsgInfo) -> bool:
+            """ Handle the event of mouse sending a message (being moves, clicked, etc...)
 
+            Args:
+                mouse_msg:  The mouse message.
+                pnt:        The input point in view coordinates. The origin is the mid point of the viewport
+                msg_info:   additional message info.
 
+            Returns:
+                True/False for success.
+            """
 
-
-
-
-    def process_mouse_msg(self, mouse_msg, pnt, msg_info):
-        """
-        Process the mouse message event
+            return True
+        
+    def modify_element_property(self,
+                                page : int,
+                                name : str,
+                                value: Any):
+        """Handle the event of changing an element property in the property palette
 
         Args:
-            mouse_msg:  the mouse message.
-            pnt:        the input point in view coordinates
-            msg_info:   additional message info.
+            page:   Page of the modified property
+            name:   Name of the modified property.
+            value:  New value of the modified property.
+        """
+        self.palette_service.modify_element_property(page,name,value)
+        self.palette_service.update_palette(-1,False)
+
+
+    def set_active_palette_page_index(self, active_page_index: int) -> None:
+        """Handle the event of changing the tab of the property palette
+
+        Args:
+            active_page_index: index of the switched page, starting from 0
+        """
+
+
+    def on_mouse_leave(self):
+        """ Handle the event of mouse leaving the viewport."""
+
+
+    def on_preview_draw(self):
+        """ Handles the preview draw event.
+
+        This event is triggered e.g., when an input in the dialog line is done (e.g. input of a coordinate).
+        """
+
+
+    def on_value_input_control_enter(self) -> bool:
+        """ Handle the event of hitting the enter key during the input in the dialog line.
 
         Returns:
             True/False for success.
         """
 
         return True
+
+    def on_shortcut_control_input(self,
+                                  value: int) -> bool:
+
+        return True
+
+    def execute_save_favorite(self,
+                              file_name: str) -> None:
+        BuildingElementListService.write_to_file(file_name, self.build_ele_list)
+
+
+    def execute_load_favorite(self,
+                              file_name: str) -> None:
+        BuildingElementListService.read_from_file(file_name, self.build_ele_list)
+
+        self.palette_service.update_palette(-1, True) 
+
+    def reset_param_values(self,
+                           build_ele_list: list[BuildingElement]) -> None:
+        BuildingElementListService.reset_param_values(self.build_ele_list) 
+
+        self.palette_service.update_palette(-1, True) 
+
+    def update_after_favorite_read(self) -> None:
+
+        self.palette_service.update_palette(-1, True)
+    
+    def on_cancel_function(self) -> bool:
+        
+        self.palette_service.close_palette()
+
+        return True
+    
+    def __del__(self):
+        BuildingElementListService.write_to_default_favorite_file(self.build_ele_list)
